@@ -12,34 +12,37 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
+
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
-        return ResponseEntity.ok(userService.createUser(userDto));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id){
-        return ResponseEntity.ok(userService.getUser(id));
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers(){
-        return ResponseEntity.ok(userService.getAllUsers());
+    public List<UserDto> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public UserDto getUser(@PathVariable("id") Long id) {
+        return userService.getUserById(id);
+    }
+    @PostMapping
+    public UserDto createUser(@RequestBody User user) {
+        return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable("id") Long id, @RequestBody UserDto userDto){
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+    public UserDto updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+        return userService.updateUser(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id){
+    public void deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok().build();
     }
+
 }

@@ -1,7 +1,8 @@
 package org.example.service;
 
-import lombok.RequiredArgsConstructor;
+import org.example.client.UserClient;
 import org.example.dto.CompanyDto;
+import org.example.dto.UserDto;
 import org.example.entity.Company;
 import org.example.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
@@ -11,53 +12,64 @@ import java.util.stream.Collectors;
 
 @Service
 public class CompanyService {
+
     private final CompanyRepository companyRepository;
+    private final UserClient userClient;
 
-    public CompanyService(CompanyRepository companyRepository) {
+    public CompanyService(CompanyRepository companyRepository, UserClient userClient) {
         this.companyRepository = companyRepository;
+        this.userClient = userClient;
     }
 
-    public CompanyDto createCompany(CompanyDto companyDto){
-        Company company = toEntity(companyDto);
-        Company savedCompany = companyRepository.save(company);
-        return toDto(savedCompany);
-    }
-
-    public CompanyDto getCompany(Long id){
-        return toDto(companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found")));
-    }
-
-    public List<CompanyDto> getAllCompanies(){
+    public List<CompanyDto> getAllCompanies() {
         return companyRepository.findAll().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
-    public CompanyDto updateCompany(Long id, CompanyDto companyDto){
-        Company company = companyRepository.findById(id)
+    public CompanyDto getCompanyById(Long id) {
+        return companyRepository.findById(id)
+                .map(this::toDto)
                 .orElseThrow(() -> new RuntimeException("Company not found"));
-        company.setName(companyDto.getName());
-        company.setBudget(companyDto.getBudget());
+    }
+
+    public CompanyDto createCompany(Company company) {
         return toDto(companyRepository.save(company));
     }
 
-    public void deleteCompany(Long id){
+    public CompanyDto updateCompany(Long id, Company updated) {
+        Company company = companyRepository.findById(id).orElseThrow(()-> new RuntimeException("Company not found"));
+        company.setName(updated.getName());
+        company.setBudget(updated.getBudget());
+        company.setEmployeeIds(updated.getEmployeeIds());
+        return toDto(companyRepository.save(company));
+    }
+
+    public void deleteCompany(Long id) {
         companyRepository.deleteById(id);
     }
 
-    private CompanyDto toDto(Company company){
+    public void addEmployeeToCompany(Long companyId, Long userId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        if (!company.getEmployeeIds().contains(userId)) {
+            company.getEmployeeIds().add(userId);
+            companyRepository.save(company);
+        }
+    }
+
+    private CompanyDto toDto(Company company) {
         CompanyDto dto = new CompanyDto();
         dto.setId(company.getId());
         dto.setName(company.getName());
         dto.setBudget(company.getBudget());
-        return dto;
-    }
 
-    private Company toEntity(CompanyDto dto){
-        Company user = new Company();
-        user.setName(dto.getName());
-        user.setBudget(dto.getBudget());
-        return user;
+        List<UserDto> users = company.getEmployeeIds().stream()
+                .map(userClient::getUserById)
+                .collect(Collectors.toList());
+
+        dto.setEmployees(users);
+        return dto;
     }
 }

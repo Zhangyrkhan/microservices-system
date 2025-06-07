@@ -1,9 +1,12 @@
 package org.example.service;
 
+import org.example.client.CompanyClient;
+import org.example.dto.CompanyDto;
 import org.example.dto.UserDto;
 import org.example.entity.User;
 import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,55 +14,56 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CompanyClient companyClient;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CompanyClient companyClient) {
         this.userRepository = userRepository;
+        this.companyClient = companyClient;
     }
 
-    public UserDto createUser(UserDto userDto){
-        User user = toEntity(userDto);
-        User savedUser = userRepository.save(user);
-        return toDto(savedUser);
-    }
-
-    public UserDto getUser(Long id){
-        return toDto(userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found")));
-    }
-
-    public List<UserDto> getAllUsers(){
+    public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto updateUser(Long id, UserDto userDto){
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        return toDto(userRepository.save(user));
+    public UserDto getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(this::toDto)
+                .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
-    public void deleteUser(Long id){
+    public UserDto createUser(User user) {
+        User saved = userRepository.save(user);
+
+        // ⬇️ Передача userId в company-service
+        companyClient.addEmployeeToCompany(saved.getCompanyId(), saved.getId());
+        return toDto(userRepository.save(user));
+    }
+    public UserDto updateUser(Long id, User updatedUser) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("User not found"));
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setPhone(updatedUser.getPhone());
+        user.setCompanyId(updatedUser.getCompanyId());
+        return toDto(userRepository.save(user));
+    }
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    private UserDto toDto(User user){
+
+
+    private UserDto toDto(User user) {
+        CompanyDto company = companyClient.getCompanyById(user.getCompanyId());
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
-        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setPhone(user.getPhone());
+        dto.setCompany(company);
         return dto;
     }
 
-    private User toEntity(UserDto dto){
-        User user = new User();
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setPhoneNumber(dto.getPhoneNumber());
-        return user;
-    }
 }
