@@ -34,22 +34,22 @@ services:
     build: ./eureka-server
     ports:
       - "8761:8761"
-    depends_on:
-      - config-server
+#    depends_on:
+#      - config-server
 
   gateway:
     build: ./gateway
     ports:
       - "8080:8080"
     depends_on:
-      - config-server
+#      - config-server
       - eureka-server
 
   user-service:
     build: ./user-service
     depends_on:
       - postgres-users
-      - config-server
+#      - config-server
       - eureka-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-users:5432/users_db
@@ -58,7 +58,7 @@ services:
     build: ./company-service
     depends_on:
       - postgres-companies
-      - config-server
+#      - config-server
       - eureka-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-companies:5432/companies_db
