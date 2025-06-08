@@ -20,15 +20,15 @@ services:
     ports:
       - "5434:5432"
 
-  config-server:
-    build: ./config-server
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./config-repo:/config
-    environment:
-      - SPRING_PROFILES_ACTIVE=native
-      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
+#  config-server:
+#    build: ./config-server
+#    ports:
+#      - "8888:8888"
+#    volumes:
+#      - ./config-repo:/config
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=native
+#      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
 
   eureka-server:
     build: ./eureka-server
