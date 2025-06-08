@@ -33,12 +33,16 @@ public class UserService {
                 .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
+    public List<UserDto> getUsersByCompany(Long companyId) {
+        return userRepository.findByCompanyId(companyId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
     public UserDto createUser(User user) {
         User saved = userRepository.save(user);
-
-        // ⬇️ Передача userId в company-service
-        companyClient.addEmployeeToCompany(saved.getCompanyId(), saved.getId());
-        return toDto(userRepository.save(user));
+        return toDto(saved);
     }
     public UserDto updateUser(Long id, User updatedUser) {
         User user = userRepository.findById(id)
@@ -56,7 +60,11 @@ public class UserService {
 
 
     private UserDto toDto(User user) {
-        CompanyDto company = companyClient.getCompanyById(user.getCompanyId());
+//        CompanyDto company = companyClient.getCompanyById(user.getCompanyId());
+        CompanyDto  company = new CompanyDto();
+        company.setId(user.getCompanyId());
+        company.setName("TestCompany");
+
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setFirstName(user.getFirstName());

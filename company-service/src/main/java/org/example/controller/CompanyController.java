@@ -30,10 +30,6 @@ public class CompanyController {
     public CompanyDto getCompany(@PathVariable("id") Long id) {
         return companyService.getCompanyById(id);
     }
-    @PutMapping("/{companyId}/addEmployee/{userId}")
-    public void addEmployeeToCompany(@PathVariable Long companyId, @PathVariable Long userId) {
-        companyService.addEmployeeToCompany(companyId, userId);
-    }
 
 
     @PostMapping

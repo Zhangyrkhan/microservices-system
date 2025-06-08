@@ -49,15 +49,6 @@ public class CompanyService {
         companyRepository.deleteById(id);
     }
 
-    public void addEmployeeToCompany(Long companyId, Long userId) {
-        Company company = companyRepository.findById(companyId)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
-
-        if (!company.getEmployeeIds().contains(userId)) {
-            company.getEmployeeIds().add(userId);
-            companyRepository.save(company);
-        }
-    }
 
     private CompanyDto toDto(Company company) {
         CompanyDto dto = new CompanyDto();
@@ -65,10 +56,8 @@ public class CompanyService {
         dto.setName(company.getName());
         dto.setBudget(company.getBudget());
 
-        List<UserDto> users = company.getEmployeeIds().stream()
-                .map(userClient::getUserById)
-                .collect(Collectors.toList());
 
+        List<UserDto> users = userClient.getUsersByCompanyId(company.getId());
         dto.setEmployees(users);
         return dto;
     }

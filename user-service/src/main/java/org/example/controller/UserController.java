@@ -30,6 +30,13 @@ public class UserController {
     public UserDto getUser(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
+    @GetMapping("/byCompany/{companyId}")
+    public List<UserDto> getUsersByCompany(@PathVariable("companyId") Long companyId) {
+        System.out.println("Get users by companyId = " + companyId);
+        List<UserDto> users = userService.getUsersByCompany(companyId);
+        System.out.println("Found users count: " + users.size());
+        return users;
+    }
     @PostMapping
     public UserDto createUser(@RequestBody User user) {
         return userService.createUser(user);
