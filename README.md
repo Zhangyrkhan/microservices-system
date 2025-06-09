@@ -1,46 +1,50 @@
-# 🌐 Microservices Project: User-Service & Company-Service
-
-Микросервисное приложение, включающее `User Service`, `Company Service`, `Config Server`, `Eureka`, `API Gateway` и две отдельные базы данных PostgreSQL. Все сервисы автоматически конфигурируются через Spring Cloud Config и регистрируются в Eureka.
+Sure! Here's your **Microservices Project documentation translated into English**:
 
 ---
 
-## 🚀 Запуск проекта
+# 🌐 Microservices Project: User-Service & Company-Service
 
-Перед запуском убедитесь, что установлен Docker и Maven.
+A microservices-based application that includes `User Service`, `Company Service`, `Config Server`, `Eureka`, `API Gateway`, and two separate PostgreSQL databases. All services are auto-configured via Spring Cloud Config and registered with Eureka.
 
-### 1. Сборка проекта
+---
+
+## 🚀 Project Startup
+
+Make sure you have Docker and Maven installed before starting.
+
+### 1. Build the Project
 
 ```bash
 mvn clean install
 ```
 
-### 2. Запуск с Docker Compose
+### 2. Run with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-Все сервисы будут доступны по адресу `http://localhost:8080` через gateway.
+All services will be accessible through the gateway at `http://localhost:8080`.
 
 ---
 
-## 🧭 Архитектура
+## 🧭 Architecture
 
-* **Config Server** (`localhost:8888`) — хранит конфигурации сервисов.
-* **Eureka Server** (`localhost:8761`) — сервис-дискавери.
-* **API Gateway** (`localhost:8080`) — проксирует запросы к микросервисам.
+* **Config Server** (`localhost:8888`) — Stores configurations for services.
+* **Eureka Server** (`localhost:8761`) — Service discovery server.
+* **API Gateway** (`localhost:8080`) — Proxies requests to microservices.
 * **User Service** (`/user-service/...`)
 * **Company Service** (`/company-service/...`)
-* **Postgres** базы данных:
+* **Postgres** Databases:
 
-  * `users_db` на порту `5433`
-  * `companies_db` на порту `5434`
+  * `users_db` on port `5433`
+  * `companies_db` on port `5434`
 
 ---
 
 ## 📦 User Service
 
-Базовый URL: `http://localhost:8080/user-service/users`
+Base URL: `http://localhost:8080/user-service/users`
 
 ### ➕ POST `/users`
 
@@ -53,7 +57,7 @@ docker compose up --build
 }
 ```
 
-**Ответ:**
+**Response:**
 
 ```json
 {
@@ -73,7 +77,7 @@ docker compose up --build
 
 ### 📄 GET `/users/1`
 
-**Ответ:**
+**Response:**
 
 ```json
 {
@@ -93,7 +97,7 @@ docker compose up --build
 
 ### 📄 GET `/users`
 
-**Ответ:**
+**Response:**
 
 ```json
 [
@@ -125,7 +129,7 @@ docker compose up --build
 }
 ```
 
-**Ответ:**
+**Response:**
 
 ```json
 {
@@ -145,13 +149,13 @@ docker compose up --build
 
 ### ❌ DELETE `/users/1`
 
-Удаляет пользователя по ID.
+Deletes a user by ID.
 
 ---
 
 ## 🏢 Company Service
 
-Базовый URL: `http://localhost:8080/company-service/companies`
+Base URL: `http://localhost:8080/company-service/companies`
 
 ### ➕ POST `/companies`
 
@@ -162,7 +166,7 @@ docker compose up --build
 }
 ```
 
-**Ответ:**
+**Response:**
 
 ```json
 {
@@ -177,7 +181,7 @@ docker compose up --build
 
 ### 📄 GET `/companies/1`
 
-**Ответ:**
+**Response:**
 
 ```json
 {
@@ -199,7 +203,7 @@ docker compose up --build
 
 ### 📄 GET `/companies`
 
-**Ответ:**
+**Response:**
 
 ```json
 [
@@ -225,24 +229,25 @@ docker compose up --build
 
 ### 🔄 PUT `/companies/1`
 
+```json
 {
   "name": "Hanzada",
   "budget": 2342342
 }
+```
 
-Обновляет информацию о компании с ID = 1.
+Updates the company with ID = 1.
 
 ---
 
 ### ❌ DELETE `/companies/1`
 
-Удаляет компанию по ID.
+Deletes a company by ID.
 
 ---
 
-## 📎 Полезные ссылки
+## 📎 Useful Links
 
 * **Eureka Dashboard**: [http://localhost:8761](http://localhost:8761)
 * **Gateway**: [http://localhost:8080](http://localhost:8080)
 * **Config Server**: [http://localhost:8888](http://localhost:8888)
-
