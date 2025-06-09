@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.client.UserClient;
 import org.example.dto.CompanyDto;
+import org.example.dto.SimpleUserDto;
 import org.example.dto.UserDto;
 import org.example.entity.Company;
 import org.example.repository.CompanyRepository;
@@ -57,7 +58,7 @@ public class CompanyService {
         dto.setBudget(company.getBudget());
 
 
-        List<UserDto> users = userClient.getUsersByCompanyId(company.getId());
+        List<SimpleUserDto> users = userClient.getSimpleUsersByCompanyId(company.getId());
         dto.setEmployees(users);
         return dto;
     }

@@ -2,6 +2,7 @@ package org.example.controller;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.SimpleUserDto;
 import org.example.dto.UserDto;
 import org.example.entity.User;
 import org.example.service.UserService;
@@ -30,13 +31,12 @@ public class UserController {
     public UserDto getUser(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
-    @GetMapping("/byCompany/{companyId}")
-    public List<UserDto> getUsersByCompany(@PathVariable("companyId") Long companyId) {
-        System.out.println("Get users by companyId = " + companyId);
-        List<UserDto> users = userService.getUsersByCompany(companyId);
-        System.out.println("Found users count: " + users.size());
-        return users;
+
+    @GetMapping("/byCompany/simple/{companyId}")
+    public List<SimpleUserDto> getSimpleUsersByCompany(@PathVariable("companyId") Long companyId) {
+        return userService.getSimpleUsersByCompany(companyId);
     }
+
     @PostMapping
     public UserDto createUser(@RequestBody User user) {
         return userService.createUser(user);

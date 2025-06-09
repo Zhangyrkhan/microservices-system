@@ -3,6 +3,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CompanyDto;
+import org.example.dto.SimpleCompanyDto;
 import org.example.entity.Company;
 import org.example.repository.CompanyRepository;
 import org.example.service.CompanyService;
@@ -16,9 +17,11 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private  final CompanyRepository companyRepository;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService, CompanyRepository companyRepository) {
         this.companyService = companyService;
+        this.companyRepository = companyRepository;
     }
 
     @GetMapping
@@ -29,6 +32,18 @@ public class CompanyController {
     @GetMapping("/{id}")
     public CompanyDto getCompany(@PathVariable("id") Long id) {
         return companyService.getCompanyById(id);
+    }
+
+    @GetMapping("/simple/{id}")
+    public SimpleCompanyDto getSimpleCompanyById(@PathVariable("id") Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        SimpleCompanyDto dto = new SimpleCompanyDto();
+        dto.setId(company.getId());
+        dto.setName(company.getName());
+        dto.setBudget(company.getBudget());
+        return dto;
     }
 
 

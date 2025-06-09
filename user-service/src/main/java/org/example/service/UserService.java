@@ -2,6 +2,8 @@ package org.example.service;
 
 import org.example.client.CompanyClient;
 import org.example.dto.CompanyDto;
+import org.example.dto.SimpleCompanyDto;
+import org.example.dto.SimpleUserDto;
 import org.example.dto.UserDto;
 import org.example.entity.User;
 import org.example.repository.UserRepository;
@@ -57,13 +59,28 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public List<SimpleUserDto> getSimpleUsersByCompany(Long companyId) {
+        return userRepository.findByCompanyId(companyId)
+                .stream()
+                .map(user -> {
+                    SimpleUserDto dto = new SimpleUserDto();
+                    dto.setId(user.getId());
+                    dto.setFirstName(user.getFirstName());
+                    dto.setLastName(user.getLastName());
+                    dto.setPhone(user.getPhone());
+                    return dto;
+                }).collect(Collectors.toList());
+    }
 
 
     private UserDto toDto(User user) {
-//        CompanyDto company = companyClient.getCompanyById(user.getCompanyId());
-        CompanyDto  company = new CompanyDto();
-        company.setId(user.getCompanyId());
-        company.setName("TestCompany");
+        SimpleCompanyDto fullCompany = companyClient.getCompanyById(user.getCompanyId());
+
+        SimpleCompanyDto company = new SimpleCompanyDto();
+        company.setId(fullCompany.getId());
+        company.setName(fullCompany.getName());
+        company.setBudget(fullCompany.getBudget());
+
 
         UserDto dto = new UserDto();
         dto.setId(user.getId());
