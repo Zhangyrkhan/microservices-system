@@ -1,7 +1,3 @@
-Sure! Here's your **Microservices Project documentation translated into English**:
-
----
-
 # 🌐 Microservices Project: User-Service & Company-Service
 
 A microservices-based application that includes `User Service`, `Company Service`, `Config Server`, `Eureka`, `API Gateway`, and two separate PostgreSQL databases. All services are auto-configured via Spring Cloud Config and registered with Eureka.
