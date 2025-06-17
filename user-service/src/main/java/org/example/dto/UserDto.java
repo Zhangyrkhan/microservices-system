@@ -1,12 +1,14 @@
 package org.example.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class UserDto {
     private Long id;
     private String firstName;
     private String lastName;
-    private String phone;
-    private SimpleCompanyDto company;
+    private String phoneNumber;
+    private Long companyId;
 }

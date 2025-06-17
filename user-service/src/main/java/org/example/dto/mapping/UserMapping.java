@@ -1,0 +1,10 @@
+package org.example.dto.mapping;
+
+import org.example.dto.UserDto;
+import org.example.entity.User;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface UserMapping {
+    UserDto toDto(User user);
+}
