@@ -1,65 +1,49 @@
 package org.example.controller;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CompanyDto;
-import org.example.dto.SimpleCompanyDto;
-import org.example.entity.Company;
-import org.example.repository.CompanyRepository;
-import org.example.service.CompanyService;
+import org.example.service.serviceImpl.CompanyServiceImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/companies")
 public class CompanyController {
+    private final CompanyServiceImpl companyServiceImpl;
 
-    private final CompanyService companyService;
-    private  final CompanyRepository companyRepository;
 
-    public CompanyController(CompanyService companyService, CompanyRepository companyRepository) {
-        this.companyService = companyService;
-        this.companyRepository = companyRepository;
+    @PostMapping("/create")
+    public ResponseEntity<Void> createCompany(@RequestBody @Valid CompanyDto companyDto) {
+        companyServiceImpl.addCompany(companyDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping
-    public List<CompanyDto> getAllCompanies() {
-        return companyService.getAllCompanies();
+    @GetMapping("/all")
+    public ResponseEntity<Page<CompanyDto>> getAllCompanies(
+            @RequestParam(name = "page",defaultValue = "0")int page,
+            @RequestParam(name = "size", defaultValue = "10")int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CompanyDto> companies = companyServiceImpl.getAllCompanies(pageable);
+        return ResponseEntity.ok(companies);
     }
 
-    @GetMapping("/{id}")
-    public CompanyDto getCompany(@PathVariable("id") Long id) {
-        return companyService.getCompanyById(id);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Void> updateCompany(@PathVariable("id") Long id, @RequestBody @Valid CompanyDto companyDto) {
+        companyServiceImpl.updateCompany(id, companyDto);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/simple/{id}")
-    public SimpleCompanyDto getSimpleCompanyById(@PathVariable("id") Long id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
-
-        SimpleCompanyDto dto = new SimpleCompanyDto();
-        dto.setId(company.getId());
-        dto.setName(company.getName());
-        dto.setBudget(company.getBudget());
-        return dto;
-    }
-
-
-    @PostMapping
-    public CompanyDto createCompany(@RequestBody Company company) {
-        return companyService.createCompany(company);
-    }
-
-    @PutMapping("/{id}")
-    public CompanyDto updateCompany(@PathVariable("id") Long id, @RequestBody Company company) {
-        return companyService.updateCompany(id, company);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteCompany(@PathVariable("id") Long id) {
-        companyService.deleteCompany(id);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
+        return companyServiceImpl.deleteCompany(id);
     }
 }
 

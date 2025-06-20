@@ -1,23 +1,20 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Getter
+@Setter
 @Entity
-@Data
 @Table(name = "companies")
 public class Company {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
     private double budget;
+    //private List<EmployeeDto> employeeIds;
 
-    @ElementCollection
-    @CollectionTable(name = "company_employees", joinColumns = @JoinColumn(name = "company_id"))
-    @Column(name = "employee_id")
-    private List<Long> employeeIds = new ArrayList<>();
 }
