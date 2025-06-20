@@ -1,9 +1,5 @@
 
-
 spring:
-  cloud:
-    config:
-      enabled: false
   application:
     name: user-service
   datasource:
@@ -21,7 +17,9 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
 
-
+logging:
+  level:
+    root: info
 #spring.application.name=user-service
 #spring.config.import=configserver:
 server:

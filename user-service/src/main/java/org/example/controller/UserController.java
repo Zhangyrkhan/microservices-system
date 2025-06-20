@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UserDto;
 import org.example.service.serviceImpl.UserServiceImpl;
 
@@ -12,16 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+
 public class UserController {
 
     private final UserServiceImpl userServiceImpl;
 
-    public UserController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserDto userDto) {

@@ -1,8 +1,9 @@
 package org.example.service.serviceImpl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UserDto;
-import org.example.dto.mapping.UserMapping;
+import org.example.mapper.UserMapping;
 import org.example.entity.User;
 import org.example.repository.UserRepository;
 import org.example.service.UserService;
@@ -10,21 +11,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
-import java.util.Optional;
 
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapping userMapping;
 
-    @Override
-    public Optional<UserDto> getUser(Long id){
-        return userRepository.findById(id)
-                .map(userMapping::toDto);
-    }
 
     @Override
     public void addUser(UserDto userdto) {
