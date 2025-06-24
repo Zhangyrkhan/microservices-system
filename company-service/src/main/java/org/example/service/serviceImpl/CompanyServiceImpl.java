@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
@@ -44,5 +46,13 @@ public class CompanyServiceImpl implements CompanyService {
         }
         companyRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public List<CompanyDto> getCompanyById(List<Long> id) {
+        return companyRepository.findAllById(id)
+                .stream()
+                .map(companyMapping::toDto)
+                .toList();
     }
 }

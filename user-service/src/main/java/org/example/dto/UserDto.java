@@ -1,5 +1,7 @@
 package org.example.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +13,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
+
     private String phoneNumber;
+
     private Long companyId;
 }

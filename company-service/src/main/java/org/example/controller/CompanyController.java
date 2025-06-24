@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/companies")
@@ -33,6 +35,11 @@ public class CompanyController {
         Pageable pageable = PageRequest.of(page, size);
         Page<CompanyDto> companies = companyServiceImpl.getAllCompanies(pageable);
         return ResponseEntity.ok(companies);
+    }
+
+    @PostMapping("/by-id")
+    public List<CompanyDto> getCompanyById(@RequestBody List<Long> id) {
+        return companyServiceImpl.getCompanyById(id);
     }
 
     @PutMapping("/update/{id}")
