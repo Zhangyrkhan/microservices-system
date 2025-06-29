@@ -1,22 +1,19 @@
-package org.example.entity;
+package org.example.dto;
 
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "users")
 @Getter
 @Setter
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserRequestDto {
     private Long id;
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private Long companyId;
-
-
 }

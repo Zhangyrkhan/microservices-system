@@ -1,7 +1,6 @@
 package org.example.service.serviceImpl;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UserDto;
 import org.example.mapper.UserMapping;
 import org.example.entity.User;
@@ -15,10 +14,9 @@ import org.springframework.data.domain.Pageable;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    public UserRepository userRepository;
     private final UserMapping userMapping;
 
 

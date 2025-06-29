@@ -15,6 +15,5 @@ public class Company {
 
     private String name;
     private double budget;
-    //private List<EmployeeDto> employeeIds;
 
 }

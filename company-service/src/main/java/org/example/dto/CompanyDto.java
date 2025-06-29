@@ -16,5 +16,5 @@ public class CompanyDto {
 
     @Positive(message = "Budget must be a positive number")
     private double budget;
-    //private List<EmployeeDto> employeeIds;
+
 }
