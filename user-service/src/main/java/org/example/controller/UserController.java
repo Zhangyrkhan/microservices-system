@@ -1,55 +1,58 @@
 package org.example.controller;
 
-import lombok.Data;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.SimpleUserDto;
 import org.example.dto.UserDto;
-import org.example.entity.User;
+import org.example.dto.UserResponseDto;
 import org.example.service.UserService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @GetMapping
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
-    @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable("id") Long id) {
-        return userService.getUserById(id);
-    }
-
-    @GetMapping("/byCompany/simple/{companyId}")
-    public List<SimpleUserDto> getSimpleUsersByCompany(@PathVariable("companyId") Long companyId) {
-        return userService.getSimpleUsersByCompany(companyId);
-    }
-
     @PostMapping
-    public UserDto createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<Void> create(@RequestBody @Valid UserDto dto) {
+        userService.addUser(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @PostMapping("/by-company")
+    public ResponseEntity<List<UserDto>> getUsersByCompanyId(@RequestBody List<Long> companyIds) {
+        List<UserDto> users = userService.findUsersByCompanyIds(companyIds);
+        return ResponseEntity.ok(users);
+    }
+
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<UserResponseDto>> withCompany(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                userService.getUsers(PageRequest.of(page, size))
+        );
     }
 
     @PutMapping("/{id}")
-    public UserDto updateUser(@PathVariable("id") Long id, @RequestBody User user) {
-        return userService.updateUser(id, user);
+    public ResponseEntity<Void> update(
+            @PathVariable(name = "id") Long id,
+            @RequestBody @Valid UserDto dto
+    ) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
