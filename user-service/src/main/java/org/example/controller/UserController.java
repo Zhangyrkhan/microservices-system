@@ -37,7 +37,7 @@ public class UserController {
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-                userService.getUsersWithCompany(PageRequest.of(page, size))
+                userService.getUsers(PageRequest.of(page, size))
         );
     }
 

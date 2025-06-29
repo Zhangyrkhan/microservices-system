@@ -33,13 +33,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userMapper.toEntity(dto));
     }
 
-    @Override
-    public Page<UserDto> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userMapper::toDto);
-    }
+
 
     @Override
-    public Page<UserResponseDto> getUsersWithCompany(Pageable pageable) {
+    public Page<UserResponseDto> getUsers(Pageable pageable) {
         Page<User> page = userRepository.findAll(pageable);
         List<Long> companyIds = page.getContent().stream()
                 .map(User::getCompanyId)

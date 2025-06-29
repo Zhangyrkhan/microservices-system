@@ -9,8 +9,7 @@ import java.util.List;
 
 public interface UserService {
     void addUser(UserDto dto);
-    Page<UserDto> getAllUsers(Pageable pageable);
-    Page<UserResponseDto> getUsersWithCompany(Pageable pageable);
+    Page<UserResponseDto> getUsers(Pageable pageable);
     List<UserDto> findUsersByCompanyIds(List<Long> companyIds);
     void updateUser(Long id, UserDto dto);
     void deleteUser(Long id);
