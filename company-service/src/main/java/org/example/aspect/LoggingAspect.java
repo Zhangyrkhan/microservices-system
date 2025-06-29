@@ -10,6 +10,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 
 @Component
@@ -54,7 +55,11 @@ public class LoggingAspect {
 
     @AfterReturning(returning = "returnObject", pointcut = "controllerLog()")
     public void doAfterReturning(Object returnObject){
-        log.info("Return value: {}", returnObject);
+        if (returnObject instanceof Collection<?> collection && collection.size() > 10) {
+            log.info("Return collection ({} items): [truncated]", collection.size());
+        } else {
+            log.info("Return value: {}", returnObject);
+        }
     }
 
     @After("controllerLog() || serviceLog()")

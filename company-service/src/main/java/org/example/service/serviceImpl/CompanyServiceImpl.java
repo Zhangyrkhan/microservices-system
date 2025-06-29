@@ -9,7 +9,6 @@ import org.example.entity.Company;
 import org.example.mapper.CompanyMapper;
 import org.example.repository.CompanyRepository;
 import org.example.service.CompanyService;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@EnableFeignClients(basePackages = "org.example.client")
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository repository;
@@ -40,6 +38,14 @@ public class CompanyServiceImpl implements CompanyService {
         return repository.findAll(pageable)
                 .map(mapper::toDto);
     }
+    @Override
+    public List<CompanyDto> getCompanyById(List<Long> ids) {
+        return repository.findAllById(ids)
+                .stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
 
     @Override
     public Page<CompanyResponseDto> getCompaniesWithUsers(Pageable pageable) {

@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
@@ -22,21 +24,17 @@ public class UserController {
         userService.addUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
-    @GetMapping
-    public ResponseEntity<Page<UserDto>> all(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(
-                userService.getAllUsers(PageRequest.of(page, size))
-        );
+    @PostMapping("/by-company")
+    public ResponseEntity<List<UserDto>> getUsersByCompanyId(@RequestBody List<Long> companyIds) {
+        List<UserDto> users = userService.findUsersByCompanyIds(companyIds);
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/with-company")
+
+    @GetMapping("/all")
     public ResponseEntity<Page<UserResponseDto>> withCompany(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
                 userService.getUsersWithCompany(PageRequest.of(page, size))
@@ -45,7 +43,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long id,
             @RequestBody @Valid UserDto dto
     ) {
         userService.updateUser(id, dto);
@@ -53,7 +51,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

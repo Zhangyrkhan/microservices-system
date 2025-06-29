@@ -6,10 +6,9 @@ import org.example.dto.CompanyDto;
 import org.example.dto.UserDto;
 import org.example.dto.UserResponseDto;
 import org.example.entity.User;
-import org.example.mapper.UserMapping;
+import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.service.UserService;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,21 +22,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@EnableFeignClients(basePackages = "org.example.client")
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapping userMapping;
+    private final UserMapper userMapper;
     private final CompanyClient companyClient;
 
     @Override
     public void addUser(UserDto dto) {
-        userRepository.save(userMapping.toEntity(dto));
+        userRepository.save(userMapper.toEntity(dto));
     }
 
     @Override
     public Page<UserDto> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userMapping::toDto);
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Override
@@ -54,16 +52,24 @@ public class UserServiceImpl implements UserService {
 
         return page.map(u -> {
             CompanyDto c = byId.get(u.getCompanyId());
-            return userMapping.toResponseDto(u, c);
+            return userMapper.toResponseDto(u, c);
         });
     }
+
+    @Override
+    public List<UserDto> findUsersByCompanyIds(List<Long> companyIds) {
+        return userRepository.findAllByCompanyIdIn(companyIds).stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
 
     @Override
     public void updateUser(Long id, UserDto dto) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User " + id + " not found");
         }
-        User u = userMapping.toEntity(dto);
+        User u = userMapper.toEntity(dto);
         u.setId(id);
         userRepository.save(u);
     }
