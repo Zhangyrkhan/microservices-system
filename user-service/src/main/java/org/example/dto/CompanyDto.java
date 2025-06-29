@@ -7,10 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CompanyDto {
-
+    private Long id;
     private String name;
     private double budget;
 }

@@ -1,56 +1,63 @@
 package org.example.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CompanyDto;
-import org.example.service.serviceImpl.CompanyServiceImpl;
+import org.example.dto.CompanyResponseDto;
+import org.example.service.CompanyService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/companies")
 public class CompanyController {
-    private final CompanyServiceImpl companyServiceImpl;
+
+    private final CompanyService companyService;
 
 
-    @PostMapping("/create")
-    public ResponseEntity<Void> createCompany(@RequestBody @Valid CompanyDto companyDto) {
-        companyServiceImpl.addCompany(companyDto);
+    @PostMapping
+    public ResponseEntity<Void> create(@RequestBody @Valid CompanyDto dto) {
+        companyService.addCompany(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Page<CompanyDto>> getAllCompanies(
-            @RequestParam(name = "page",defaultValue = "0")int page,
-            @RequestParam(name = "size", defaultValue = "10")int size
+
+    @GetMapping
+    public ResponseEntity<Page<CompanyDto>> all(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CompanyDto> companies = companyServiceImpl.getAllCompanies(pageable);
-        return ResponseEntity.ok(companies);
+        return ResponseEntity.ok(
+                companyService.getAllCompanies(PageRequest.of(page, size))
+        );
     }
 
-    @PostMapping("/by-id")
-    public List<CompanyDto> getCompanyById(@RequestBody List<Long> id) {
-        return companyServiceImpl.getCompanyById(id);
+
+    @GetMapping("/with-users")
+    public ResponseEntity<Page<CompanyResponseDto>> withUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                companyService.getCompaniesWithUsers(PageRequest.of(page, size))
+        );
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Void> updateCompany(@PathVariable("id") Long id, @RequestBody @Valid CompanyDto companyDto) {
-        companyServiceImpl.updateCompany(id, companyDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable Long id,
+            @RequestBody @Valid CompanyDto dto
+    ) {
+        companyService.updateCompany(id, dto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
-        return companyServiceImpl.deleteCompany(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        companyService.deleteCompany(id);
+        return ResponseEntity.noContent().build();
     }
 }
-

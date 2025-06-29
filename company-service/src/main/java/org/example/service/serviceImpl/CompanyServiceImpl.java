@@ -1,18 +1,20 @@
 package org.example.service.serviceImpl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.client.UserClient;
 import org.example.dto.CompanyDto;
 import org.example.dto.CompanyResponseDto;
-import org.example.dto.UserRequestDto;
-import org.example.dto.mapper.CompanyMapping;
+import org.example.dto.UserDto;
 import org.example.entity.Company;
+import org.example.mapper.CompanyMapper;
 import org.example.repository.CompanyRepository;
 import org.example.service.CompanyService;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,66 +22,61 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@EnableFeignClients(basePackages = "org.example.client")
 public class CompanyServiceImpl implements CompanyService {
 
-    private final CompanyRepository companyRepository;
-    private final CompanyMapping companyMapping;
+    private final CompanyRepository repository;
+    private final CompanyMapper mapper;
     private final UserClient userClient;
 
     @Override
-    public void addCompany(CompanyDto companyDto) {
-        Company company = companyMapping.toEntity(companyDto);
-        companyRepository.save(company);
+    public void addCompany(CompanyDto dto) {
+        repository.save(mapper.toEntity(dto));
     }
 
     @Override
     public Page<CompanyDto> getAllCompanies(Pageable pageable) {
-        return companyRepository.findAll(pageable)
-                .map(companyMapping::toDto);
+        return repository.findAll(pageable)
+                .map(mapper::toDto);
     }
 
     @Override
-    public Page<CompanyResponseDto> getCompaniesResponseDto(Pageable pageable) {
-        Page<Company> page = companyRepository.findAll(pageable);
-        List<Long> companyIds = page.getContent()
-                .stream()
+    public Page<CompanyResponseDto> getCompaniesWithUsers(Pageable pageable) {
+        Page<Company> page = repository.findAll(pageable);
+
+        List<Long> ids = page.getContent().stream()
                 .map(Company::getId)
                 .toList();
 
-        List<UserRequestDto> allUsers = userClient.getUsersByCompanyId(companyIds);
-        Map<Long, List<UserRequestDto>> usersByCompany = allUsers.stream()
-                .collect(Collectors.groupingBy(UserRequestDto::getCompanyId));
+        List<UserDto> users = userClient.getUsersByCompanyIds(ids);
 
-        return page.map(company -> {
-            List<UserRequestDto> users =
-                    usersByCompany.getOrDefault(company.getId(), Collections.emptyList());
-            return companyMapping.toResponseDto(company, users);
+        Map<Long, List<UserDto>> byCompany = users.stream()
+                .collect(Collectors.groupingBy(UserDto::getCompanyId));
+
+        return page.map(c -> {
+            List<UserDto> list = byCompany.getOrDefault(c.getId(), Collections.emptyList());
+            return mapper.toResponseDto(c, list);
         });
     }
 
-
     @Override
-    public void updateCompany(Long id, CompanyDto updatedCompanyDto){
-        Company company = companyMapping.toEntity(updatedCompanyDto);
-        company.setId(id);
-        companyRepository.save(company);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteCompany(Long id){
-        if(!companyRepository.existsById(id)){
-            return ResponseEntity.notFound().build();
+    public void updateCompany(Long id, CompanyDto dto) {
+        if (!repository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Company " + id + " not found");
         }
-        companyRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        Company c = mapper.toEntity(dto);
+        c.setId(id);
+        repository.save(c);
     }
 
     @Override
-    public List<CompanyDto> getCompanyById(List<Long> id) {
-        return companyRepository.findAllById(id)
-                .stream()
-                .map(companyMapping::toDto)
-                .toList();
+    public void deleteCompany(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Company " + id + " not found");
+        }
+        repository.deleteById(id);
     }
 }

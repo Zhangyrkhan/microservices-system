@@ -2,52 +2,59 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UserDto;
-import org.example.service.serviceImpl.UserServiceImpl;
-
+import org.example.dto.UserResponseDto;
+import org.example.service.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-
 public class UserController {
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
-
-    @PostMapping("/create")
-    public ResponseEntity<Void> createUser(@RequestBody @Valid UserDto userDto) {
-        userServiceImpl.addUser(userDto);
+    @PostMapping
+    public ResponseEntity<Void> create(@RequestBody @Valid UserDto dto) {
+        userService.addUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Page<UserDto>> getAllUsers(
-            @RequestParam(name = "page",defaultValue = "0")int page,
-            @RequestParam(name = "size", defaultValue = "10")int size
+    @GetMapping
+    public ResponseEntity<Page<UserDto>> all(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<UserDto> users = userServiceImpl.getAllUsers(pageable);
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(
+                userService.getAllUsers(PageRequest.of(page, size))
+        );
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable("id") Long id, @RequestBody @Valid UserDto userDto) {
-        userServiceImpl.updateUser(id, userDto);
+    @GetMapping("/with-company")
+    public ResponseEntity<Page<UserResponseDto>> withCompany(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                userService.getUsersWithCompany(PageRequest.of(page, size))
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable Long id,
+            @RequestBody @Valid UserDto dto
+    ) {
+        userService.updateUser(id, dto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
-        return userServiceImpl.deleteUser(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
-
 }

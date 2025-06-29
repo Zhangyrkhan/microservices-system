@@ -1,19 +1,14 @@
 package org.example.client;
 
-
 import org.example.dto.CompanyDto;
-
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "company-service")
+@FeignClient(name = "company-service", path = "/companies")
 public interface CompanyClient {
-
-    @PostMapping("/companies/by-id")
-    CompanyDto getCompanyById(@RequestBody List<Long> id);
+    @PostMapping("/by-id")
+    List<CompanyDto> getCompaniesByIds(@RequestBody List<Long> ids);
 }
