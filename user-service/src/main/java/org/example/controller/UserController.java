@@ -2,8 +2,7 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.UserDto;
-import org.example.dto.UserResponseDto;
+import org.example.dto.*;
 import org.example.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,27 +16,31 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserService userService;  // интерфейс
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody @Valid UserDto dto) {
         userService.addUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @PostMapping("/by-company")
-    public ResponseEntity<List<UserDto>> getUsersByCompanyId(@RequestBody List<Long> companyIds) {
-        List<UserDto> users = userService.findUsersByCompanyIds(companyIds);
-        return ResponseEntity.ok(users);
-    }
 
-
-    @GetMapping("/all")
-    public ResponseEntity<Page<UserResponseDto>> withCompany(
+    @GetMapping
+    public ResponseEntity<Page<UserDto>> getAll(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-                userService.getUsers(PageRequest.of(page, size))
+                userService.getAllUsers(PageRequest.of(page, size))
+        );
+    }
+
+    @GetMapping("/with-company")
+    public ResponseEntity<Page<UserResponseDto>> getWithCompany(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                userService.getUsersWithCompany(PageRequest.of(page, size))
         );
     }
 
@@ -54,5 +57,13 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Feign-endpoint for company-service
+    @PostMapping("/by-company")
+    public ResponseEntity<List<UserDto>> findByCompanyIds(
+            @RequestBody List<Long> companyIds
+    ) {
+        return ResponseEntity.ok(userService.findUsersByCompanyIds(companyIds));
     }
 }

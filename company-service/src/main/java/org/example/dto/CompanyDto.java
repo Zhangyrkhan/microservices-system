@@ -1,18 +1,20 @@
 package org.example.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompanyDto {
+
     private Long id;
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "name must not be blank")
     private String name;
 
-    @Positive(message = "Budget must be positive")
-    private double budget;
+    @NotNull(message = "budget is required")
+    private Double budget;
 }

@@ -2,21 +2,16 @@ package org.example.service.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.client.CompanyClient;
-import org.example.dto.CompanyDto;
-import org.example.dto.UserDto;
-import org.example.dto.UserResponseDto;
+import org.example.dto.*;
 import org.example.entity.User;
+import org.example.exception.NotFoundException;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.service.UserService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,15 +28,17 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userMapper.toEntity(dto));
     }
 
-
+    @Override
+    public Page<UserDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toDto);
+    }
 
     @Override
-    public Page<UserResponseDto> getUsers(Pageable pageable) {
+    public Page<UserResponseDto> getUsersWithCompany(Pageable pageable) {
         Page<User> page = userRepository.findAll(pageable);
         List<Long> companyIds = page.getContent().stream()
                 .map(User::getCompanyId)
-                .distinct()
-                .toList();
+                .distinct().toList();
 
         List<CompanyDto> companies = companyClient.getCompaniesByIds(companyIds);
         Map<Long, CompanyDto> byId = companies.stream()
@@ -54,17 +51,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findUsersByCompanyIds(List<Long> companyIds) {
-        return userRepository.findAllByCompanyIdIn(companyIds).stream()
-                .map(userMapper::toDto)
-                .toList();
-    }
-
-
-    @Override
     public void updateUser(Long id, UserDto dto) {
         if (!userRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User " + id + " not found");
+            throw new NotFoundException("User " + id + " not found");
         }
         User u = userMapper.toEntity(dto);
         u.setId(id);
@@ -74,8 +63,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User " + id + " not found");
+            throw new NotFoundException("User " + id + " not found");
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public List<UserDto> findUsersByCompanyIds(List<Long> companyIds) {
+        return userRepository.findAllByCompanyIdIn(companyIds).stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 }
