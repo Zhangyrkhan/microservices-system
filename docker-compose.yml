@@ -9,7 +9,13 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
-
+    networks:
+      - micro
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "your_user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres-companies:
     image: postgres:15
@@ -20,65 +26,78 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
-
+    networks:
+      - micro
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "your_user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   config-server:
     build: ./config-server
+    container_name: config-server
     ports:
       - "8888:8888"
     volumes:
       - ./config-repo:/config
     environment:
-      - SPRING_PROFILES_ACTIVE=native
-      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:/config
+    networks:
+      - micro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   eureka-server:
     build: ./eureka-server
+    container_name: eureka-server
     ports:
       - "8761:8761"
     depends_on:
       config-server:
         condition: service_healthy
+
     environment:
-      - SPRING_APPLICATION_NAME=eureka-server
-      - "SPRING_CONFIG_IMPORT=configserver:"
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      SPRING_APPLICATION_NAME: eureka-server
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+    networks:
+      - micro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   gateway:
     build: ./gateway
+    container_name: gateway
     ports:
       - "8080:8080"
     depends_on:
-      config-server:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
+
     environment:
-      - SPRING_APPLICATION_NAME=gateway
-      - "SPRING_CONFIG_IMPORT=configserver:"
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      SPRING_APPLICATION_NAME: gateway
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+    networks:
+      - micro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   user-service:
     build: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8080"
     depends_on:
       postgres-users:
         condition: service_healthy
@@ -87,37 +106,45 @@ services:
       eureka-server:
         condition: service_healthy
     environment:
-      - SPRING_APPLICATION_NAME=user-service
-      - "SPRING_CONFIG_IMPORT=configserver:"
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-users:5432/users_db
+      SPRING_APPLICATION_NAME: user-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-users:5432/users_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - micro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   company-service:
     build: ./company-service
+    container_name: company-service
+    ports:
+      - "8082:8080"
     depends_on:
       postgres-companies:
-        condition: service_healthy
+          condition: service_healthy
       config-server:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
     environment:
-      - SPRING_APPLICATION_NAME=company-service
-      - "SPRING_CONFIG_IMPORT=configserver:"
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-companies:5432/companies_db
+      SPRING_APPLICATION_NAME: company-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-companies:5432/companies_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - micro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
-  default:
+  micro:
     name: microservices-network
