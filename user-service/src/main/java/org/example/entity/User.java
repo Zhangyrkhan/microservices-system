@@ -1,19 +1,24 @@
 package org.example.entity;
 
-
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
-@Data
 @Table(name = "users")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
-    private String phone;
+
+    private String phoneNumber;
+
+    @Column(nullable = false)
     private Long companyId;
 }

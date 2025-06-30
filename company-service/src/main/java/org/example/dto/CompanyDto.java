@@ -1,14 +1,20 @@
 package org.example.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
-import java.util.List;
-
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompanyDto {
+
     private Long id;
+
+    @NotBlank(message = "name must not be blank")
     private String name;
-    private double budget;
-    private List<SimpleUserDto> employees;
+
+    @NotNull(message = "budget is required")
+    private Double budget;
 }
